@@ -46,5 +46,13 @@ public class Cliente {
         this.telefono = telefono;
     }
     
+    @Override
+    public String toString() {
+        return "Cliente{" +
+                "cedula='" + cedula + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", telefono='" + telefono + '\'' +
+                '}';
+    }  
     
 }
