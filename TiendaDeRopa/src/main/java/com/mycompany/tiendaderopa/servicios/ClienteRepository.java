@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Implementación del repositorio de clientes usando una lista en memoria.
  * @author Simon Cardona
  */
 public class ClienteRepository implements IClienteRepository {
@@ -33,4 +33,14 @@ public class ClienteRepository implements IClienteRepository {
     public void eliminar(String cedula) {
         clientes.removeIf(c -> c.getCedula().equals(cedula));
         }
-}
+
+    @Override
+    public Cliente buscarPorCedula(String cedula) {
+        for (Cliente c : clientes) {
+            if (c.getCedula().equals(cedula)) {
+                return c;
+            }
+        }
+        return null;
+    }
+ } 

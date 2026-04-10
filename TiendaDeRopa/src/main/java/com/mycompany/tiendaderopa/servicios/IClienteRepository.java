@@ -7,11 +7,33 @@ import com.mycompany.tiendaderopa.modelos.Cliente;
 import java.util.List;
 
 /**
- *
+ * Interfaz para el repositorio de clientes.
+ * Define las operaciones CRUD para los clientes.
  * @author Simon Cardona
  */
 public interface IClienteRepository {
+    /**
+     * Guarda un cliente en el repositorio.
+     * @param cliente El cliente a guardar.
+     */
     void guardar(Cliente cliente);
+
+    /**
+     * Obtiene todos los clientes del repositorio.
+     * @return Lista de todos los clientes.
+     */
     List<Cliente> obtenerTodos();
+
+    /**
+     * Elimina un cliente por su cédula.
+     * @param cedula La cédula del cliente a eliminar.
+     */
     void eliminar(String cedula);
+
+    /**
+     * Busca un cliente por su cédula.
+     * @param cedula La cédula del cliente.
+     * @return El cliente encontrado o null si no existe.
+     */
+    Cliente buscarPorCedula(String cedula);
 }

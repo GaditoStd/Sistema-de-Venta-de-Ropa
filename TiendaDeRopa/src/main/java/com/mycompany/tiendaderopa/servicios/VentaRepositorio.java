@@ -7,7 +7,7 @@ import com.mycompany.tiendaderopa.modelos.Venta;
 import java.util.ArrayList;
 import java.util.List;
 /**
- *
+ * Implementación del repositorio de ventas usando una lista en memoria.
  * @author juanj
  */
 public class VentaRepositorio implements IVentaRepositorio {
@@ -29,12 +29,29 @@ public class VentaRepositorio implements IVentaRepositorio {
     }
 
     @Override
+    public void eliminar(String numeroFactura) {
+        ventas.removeIf(v -> v.getNumeroFactura().equals(numeroFactura));
+    }
+
+    @Override
+    public void actualizar(Venta venta) {
+        for (int i = 0; i < ventas.size(); i++) {
+            if (ventas.get(i).getNumeroFactura().equals(venta.getNumeroFactura())) {
+                ventas.set(i, venta);
+                break;
+            }
+        }
+    }
+
+    @Override
     public Venta buscarPorNumeroFactura(String numeroFactura) {
-        for (Venta v : ventas) {
-            if (v.getNumeroFactura().equals(numeroFactura)) {
-                return v;
+        for (Venta venta : ventas) {
+            if (venta.getNumeroFactura().equals(numeroFactura)) {
+                return venta;
             }
         }
         return null;
     }
+
 }
+
