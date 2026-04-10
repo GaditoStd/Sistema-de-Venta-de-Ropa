@@ -29,10 +29,13 @@ public class VentaPanel extends JPanel {
     private DefaultTableModel tableModel;
     private VentaServicio ventaServicio;
 
-    public VentaPanel(VentaServicio iVentaService) {
+    public VentaPanel(VentaServicio ventaServicio) {
         // Inicializar servicios
-        ventaServicio = iVentaService;
+        this.ventaServicio = ventaServicio;
+        initComponents();
+    }
 
+    private void initComponents() {
         setLayout(new BorderLayout());
 
         // Panel de formulario (izquierda)
@@ -75,8 +78,8 @@ public class VentaPanel extends JPanel {
 
         // Tabla de ventas (derecha)
         tableModel = new DefaultTableModel(
-            new Object[][] {},
-            new String[] { "N° Factura", "Cliente", "Fecha", "Total" }
+                new Object[][] {},
+                new String[] { "N° Factura", "Cliente", "Fecha", "Total" }
         );
         tablaVentas = new JTable(tableModel);
         add(new JScrollPane(tablaVentas), BorderLayout.CENTER);

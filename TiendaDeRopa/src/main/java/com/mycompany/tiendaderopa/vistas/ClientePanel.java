@@ -37,8 +37,8 @@ public class ClientePanel extends javax.swing.JPanel {
      * Creates new form ClientePanel
      */
     public ClientePanel(ClienteService clienteService) {
-    initComponents();
     this.clienteService = clienteService;
+    initComponents();
 }
 
     /**

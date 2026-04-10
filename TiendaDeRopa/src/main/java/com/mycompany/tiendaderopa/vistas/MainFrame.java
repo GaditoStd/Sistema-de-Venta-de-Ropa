@@ -20,9 +20,9 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
 
-        ClienteRepository clienteRepository = new ClienteRepository();
-        ProductoRepositorio productoRepository = new ProductoRepositorio();
-        VentaRepositorio ventaRepository = new VentaRepositorio();
+        IClienteRepository clienteRepository = new ClienteRepository();
+        IProductoRepositorio productoRepository = new ProductoRepositorio();
+        IVentaRepositorio ventaRepository = new VentaRepositorio();
 
         ClienteService clienteService = new ClienteService(clienteRepository);
         ProductoServicio productoService = new ProductoServicio(productoRepository);
@@ -63,11 +63,11 @@ public class MainFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, 1000)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 450, 450)
         );
 
         pack();

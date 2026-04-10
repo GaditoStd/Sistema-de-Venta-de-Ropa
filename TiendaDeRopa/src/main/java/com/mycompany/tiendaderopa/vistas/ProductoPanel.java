@@ -30,10 +30,12 @@ public class ProductoPanel extends JPanel {
     private DefaultTableModel tableModel;
     private ProductoServicio productoService;
 
-    public ProductoPanel(ProductoServicio iProductoService) {
-        // Inicializar servicios
-        productoService = iProductoService;
+    public ProductoPanel(ProductoServicio productoService) {
+        this.productoService = productoService;
+        initComponents();
+    }
 
+    private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("Gestión de Productos"));
 
@@ -83,8 +85,8 @@ public class ProductoPanel extends JPanel {
 
         // Tabla de productos (derecha)
         tableModel = new DefaultTableModel(
-            new Object[][] {},
-            new String[] { "Código", "Nombre", "Talla", "Color", "Precio", "Stock" }
+                new Object[][] {},
+                new String[] { "Código", "Nombre", "Talla", "Color", "Precio", "Stock" }
         );
         tablaProductos = new JTable(tableModel);
         add(new JScrollPane(tablaProductos), BorderLayout.CENTER);
