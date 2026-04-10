@@ -28,4 +28,9 @@ public class ClienteRepository implements IClienteRepository {
     public List<Cliente> obtenerTodos() {
         return new ArrayList<>(clientes);
     }
+    
+    @Override
+    public void eliminar(String cedula) {
+        clientes.removeIf(c -> c.getCedula().equals(cedula));
+        }
 }

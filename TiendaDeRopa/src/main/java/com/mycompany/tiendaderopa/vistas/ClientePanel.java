@@ -9,12 +9,29 @@ import javax.swing.table.DefaultTableModel;
 import com.mycompany.tiendaderopa.modelos.Cliente;
 import java.util.List;
 
+
 /**
  *
  * @author Simon Cardona
  */
 public class ClientePanel extends javax.swing.JPanel {
     private ClienteService clienteService;
+    
+    private void actualizarTabla() {
+    DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
+    
+    modelo.setRowCount(0); // limpia la tabla
+
+    List<Cliente> lista = clienteService.listarClientes();
+
+    for (Cliente c : lista) {
+        modelo.addRow(new Object[]{
+            c.getCedula(),
+            c.getNombre(),
+            c.getTelefono()
+        });
+    }
+}
 
     /**
      * Creates new form ClientePanel
@@ -40,21 +57,18 @@ public class ClientePanel extends javax.swing.JPanel {
         lblTelefono = new javax.swing.JLabel();
         txtTelefono = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        scrTabla = new javax.swing.JScrollPane();
         tblClientes = new javax.swing.JTable();
+        btnEliminar = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
 
         lblCedula.setText("Cedula");
 
-        txtCedula.setText("Ingrese su cedula");
         txtCedula.addActionListener(this::txtCedulaActionPerformed);
 
         lblNombre.setText("Nombre");
 
-        txtNombre.setText("Ingrese su nombre");
-
         lblTelefono.setText("Telefono");
-
-        txtTelefono.setText("Ingrese su número de telefono");
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(this::btnGuardarActionPerformed);
@@ -67,31 +81,51 @@ public class ClientePanel extends javax.swing.JPanel {
                 "Cédula", "Nombre", "Telefono"
             }
         ));
-        jScrollPane1.setViewportView(tblClientes);
+        tblClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblClientesMouseClicked(evt);
+            }
+        });
+        scrTabla.setViewportView(tblClientes);
+
+        btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
+
+        btnActualizar.setText("Actualizar");
+        btnActualizar.addActionListener(this::btnActualizarActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtCedula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(25, 25, 25)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblNombre)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnGuardar)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addComponent(btnActualizar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEliminar))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(scrTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(14, 14, 14)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(btnGuardar)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(29, 29, 29)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblNombre)
+                                        .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -108,9 +142,13 @@ public class ClientePanel extends javax.swing.JPanel {
                     .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGuardar)
-                .addGap(24, 24, 24)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEliminar)
+                    .addComponent(btnActualizar))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -119,27 +157,71 @@ public class ClientePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtCedulaActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
     String cedula = txtCedula.getText();
     String nombre = txtNombre.getText();
     String telefono = txtTelefono.getText();
 
     try {
         clienteService.registrarCliente(cedula, nombre, telefono);
-        System.out.println(clienteService.listarClientes());
+
+        actualizarTabla(); 
+
+        // limpiar campos 
+        txtCedula.setText("");
+        txtNombre.setText("");
+        txtTelefono.setText("");
+
     } catch (Exception e) {
         System.out.println("Error: " + e.getMessage());
     }
 
+
     }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+    int fila = tblClientes.getSelectedRow();
+
+    if (fila == -1) {
+        System.out.println("Selecciona un cliente");
+        return;
+    }
+
+    String cedula = tblClientes.getValueAt(fila, 0).toString();
+
+    clienteService.eliminarCliente(cedula);
+
+    actualizarTabla();
+
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void tblClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblClientesMouseClicked
+    int fila = tblClientes.getSelectedRow();
+
+    txtCedula.setText(tblClientes.getValueAt(fila, 0).toString());
+    txtNombre.setText(tblClientes.getValueAt(fila, 1).toString());
+    txtTelefono.setText(tblClientes.getValueAt(fila, 2).toString());
+    }//GEN-LAST:event_tblClientesMouseClicked
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+    String cedula = txtCedula.getText();
+    String nombre = txtNombre.getText();
+    String telefono = txtTelefono.getText();
+
+    clienteService.actualizarCliente(cedula, nombre, telefono);
+
+    actualizarTabla();
+
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
+    private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnGuardar;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblCedula;
     private javax.swing.JLabel lblNombre;
     private javax.swing.JLabel lblTelefono;
+    private javax.swing.JScrollPane scrTabla;
     private javax.swing.JTable tblClientes;
     private javax.swing.JTextField txtCedula;
     private javax.swing.JTextField txtNombre;

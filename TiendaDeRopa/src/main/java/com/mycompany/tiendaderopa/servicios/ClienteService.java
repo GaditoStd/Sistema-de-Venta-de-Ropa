@@ -34,4 +34,22 @@ public class ClienteService {
     public List<Cliente> listarClientes() {
         return clienteRepository.obtenerTodos();
     }
+    
+    public void eliminarCliente(String cedula) {
+    List<Cliente> lista = clienteRepository.obtenerTodos();
+
+    lista.removeIf(c -> c.getCedula().equals(cedula));
+    clienteRepository.eliminar(cedula);
+}
+    public void actualizarCliente(String cedula, String nombre, String telefono) {
+    List<Cliente> lista = clienteRepository.obtenerTodos();
+
+    for (Cliente c : lista) {
+        if (c.getCedula().equals(cedula)) {
+            c.setNombre(nombre);
+            c.setTelefono(telefono);
+        }
+    }
+}
+    
 }

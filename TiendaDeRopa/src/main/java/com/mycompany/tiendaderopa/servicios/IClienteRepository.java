@@ -13,4 +13,5 @@ import java.util.List;
 public interface IClienteRepository {
     void guardar(Cliente cliente);
     List<Cliente> obtenerTodos();
+    void eliminar(String cedula);
 }
