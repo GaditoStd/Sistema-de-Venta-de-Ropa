@@ -15,7 +15,7 @@ import java.util.List;
  * @author Simon Cardona
  */
 public class ClientePanel extends javax.swing.JPanel {
-    private ClienteService clienteService;
+    private final ClienteService clienteService;
     
     private void actualizarTabla() {
     DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
@@ -36,10 +36,10 @@ public class ClientePanel extends javax.swing.JPanel {
     /**
      * Creates new form ClientePanel
      */
-    public ClientePanel() {
-        initComponents();
-        clienteService = new ClienteService(new ClienteRepository());
-    }
+    public ClientePanel(ClienteService clienteService) {
+    initComponents();
+    this.clienteService = clienteService;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.

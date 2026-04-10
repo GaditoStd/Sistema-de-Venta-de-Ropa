@@ -3,8 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.tiendaderopa.vistas;
-import com.mycompany.tiendaderopa.vistas.ClientePanel;
-import com.mycompany.tiendaderopa.vistas.VentaPanel;
+import com.mycompany.tiendaderopa.servicios.ClienteService;
+import com.mycompany.tiendaderopa.servicios.ClienteRepository;
 
 /**
  *
@@ -18,20 +18,17 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     public MainFrame() {
-        initComponents();
+    initComponents();
 
-        // Limpia y agrega el panel de clientes
-        tabClientes.removeAll();
-        tabClientes.addTab("Clientes", new ClientePanel());
+    ClienteRepository repo = new ClienteRepository();
+    ClienteService service = new ClienteService(repo);
 
-        // Limpia y agrega el panel de ventas
-        tabVentas.removeAll();
-        tabVentas.addTab("Ventas", new VentaPanel());
+    // Asignar panel de clientes correctamente
+    tabPrincipal.setComponentAt(0, new ClientePanel(service));
 
-        // Selecciona la pestaña de ventas como inicio (opcional)
-        tabPrincipal.setSelectedComponent(tabVentas);
-    }
-
+    // Ventas (por ahora déjalo así si no has hecho inyección ahí)
+    tabPrincipal.setComponentAt(2, new VentaPanel());
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
