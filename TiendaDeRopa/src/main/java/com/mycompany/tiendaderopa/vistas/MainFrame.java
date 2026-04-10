@@ -4,6 +4,7 @@
  */
 package com.mycompany.tiendaderopa.vistas;
 import com.mycompany.tiendaderopa.vistas.ClientePanel;
+import com.mycompany.tiendaderopa.vistas.VentaPanel;
 
 /**
  *
@@ -18,7 +19,17 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
-        tabPrincipal.setComponentAt(0, new ClientePanel());
+
+        // Limpia y agrega el panel de clientes
+        tabClientes.removeAll();
+        tabClientes.addTab("Clientes", new ClientePanel());
+
+        // Limpia y agrega el panel de ventas
+        tabVentas.removeAll();
+        tabVentas.addTab("Ventas", new VentaPanel());
+
+        // Selecciona la pestaña de ventas como inicio (opcional)
+        tabPrincipal.setSelectedComponent(tabVentas);
     }
 
     /**

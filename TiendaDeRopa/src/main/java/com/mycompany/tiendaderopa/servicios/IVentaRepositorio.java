@@ -4,10 +4,11 @@
  */
 package com.mycompany.tiendaderopa.servicios;
 
-/**
- *
- * @author juanj
- */
+import com.mycompany.tiendaderopa.modelos.Venta;
+import java.util.List;
+
 public interface IVentaRepositorio {
-    
+    void guardar(Venta venta);
+    List<Venta> obtenerTodas();
+    Venta buscarPorNumeroFactura(String numeroFactura);
 }
