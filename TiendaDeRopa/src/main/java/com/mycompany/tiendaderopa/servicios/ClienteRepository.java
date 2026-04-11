@@ -43,4 +43,14 @@ public class ClienteRepository implements IClienteRepository {
         }
         return null;
     }
- } 
+
+    @Override
+    public void actualizar(Cliente cliente) {
+        for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getCedula().equals(cliente.getCedula())) {
+                clientes.set(i, cliente);
+                return;
+            }
+        }
+    }
+} 

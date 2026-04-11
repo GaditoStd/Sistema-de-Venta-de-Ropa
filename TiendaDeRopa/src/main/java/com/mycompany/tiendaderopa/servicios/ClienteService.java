@@ -36,20 +36,34 @@ public class ClienteService {
     }
     
     public void eliminarCliente(String cedula) {
-    List<Cliente> lista = clienteRepository.obtenerTodos();
+        List<Cliente> lista = clienteRepository.obtenerTodos();
 
-    lista.removeIf(c -> c.getCedula().equals(cedula));
-    clienteRepository.eliminar(cedula);
-}
+        lista.removeIf(c -> c.getCedula().equals(cedula));
+        clienteRepository.eliminar(cedula);
+    }
+
     public void actualizarCliente(String cedula, String nombre, String telefono) {
     List<Cliente> lista = clienteRepository.obtenerTodos();
 
-    for (Cliente c : lista) {
-        if (c.getCedula().equals(cedula)) {
-            c.setNombre(nombre);
-            c.setTelefono(telefono);
+        for (Cliente c : lista) {
+            if (c.getCedula().equals(cedula)) {
+                c.setNombre(nombre);
+                c.setTelefono(telefono);
+            }
         }
     }
-}
+
+    public void editarCliente(String cedula, String nombre, String telefono) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        if (telefono == null || telefono.trim().isEmpty()) {
+            throw new IllegalArgumentException("El teléfono es obligatorio.");
+        }
+        Cliente cliente = new Cliente(cedula, nombre, telefono);
+            clienteRepository.actualizar(cliente);
+        }
+    }
+
+
     
-}

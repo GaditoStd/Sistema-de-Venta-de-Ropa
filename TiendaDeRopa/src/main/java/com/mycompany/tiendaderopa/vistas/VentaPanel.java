@@ -28,6 +28,8 @@ public class VentaPanel extends JPanel {
     private JTable tablaVentas;
     private DefaultTableModel tableModel;
     private VentaServicio ventaServicio;
+    private JTable tablaDetalles;
+    private DefaultTableModel detalleModel;
 
     public VentaPanel(VentaServicio ventaServicio) {
         // Inicializar servicios
@@ -82,7 +84,21 @@ public class VentaPanel extends JPanel {
                 new String[] { "N° Factura", "Cliente", "Fecha", "Total" }
         );
         tablaVentas = new JTable(tableModel);
-        add(new JScrollPane(tablaVentas), BorderLayout.CENTER);
+        
+        // Tabla de detalles de venta
+        detalleModel = new DefaultTableModel(
+            new Object[][] {},
+            new String[] { "Producto", "Talla", "Color", "Precio", "Cantidad", "Subtotal" }
+        );
+        tablaDetalles = new JTable(detalleModel);
+
+        // Panel central con ambas tablas
+        JPanel panelTablas = new JPanel(new GridLayout(2, 1, 5, 5));
+        panelTablas.add(new JScrollPane(tablaVentas));
+        panelTablas.add(new JScrollPane(tablaDetalles));
+        add(panelTablas, BorderLayout.CENTER);
+
+
 
         // Agregar listeners a los botones
         btnGuardar.addActionListener(new ActionListener() {
@@ -183,6 +199,7 @@ public class VentaPanel extends JPanel {
                 txtCliente.setText(venta.getCliente().getCedula());
                 txtFecha.setText(venta.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 txtTotal.setText(String.valueOf(venta.getTotal()));
+                cargarDetalles(venta);
             }
         }
     }
@@ -211,5 +228,20 @@ public class VentaPanel extends JPanel {
         txtCliente.setText("");
         txtFecha.setText("");
         txtTotal.setText("");
+    }
+
+
+    private void cargarDetalles(Venta venta) {
+        detalleModel.setRowCount(0);
+        for (com.mycompany.tiendaderopa.modelos.DetalleVenta d : venta.getDetalles()) {
+            detalleModel.addRow(new Object[]{
+                d.getProducto().getNombre(),
+                d.getProducto().getTalla(),
+                d.getProducto().getColor(),
+                d.getProducto().getPrecio(),
+                d.getCantidad(),
+                d.getSubtotal()
+            });
+        }
     }
 }
