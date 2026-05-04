@@ -37,6 +37,9 @@ public class MainFrame extends javax.swing.JFrame {
         // Ventas
         tabPrincipal.setComponentAt(2, new VentaPanel(ventaService));
 
+        // Historial
+        tabPrincipal.addTab("Historial", new HistorialPanel(ventaService));
+
 
     }
 
