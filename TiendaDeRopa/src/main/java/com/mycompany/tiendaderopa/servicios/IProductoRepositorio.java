@@ -12,9 +12,13 @@ import java.util.List;
  */
 public interface IProductoRepositorio {
     void guardar(Producto producto);
+
     List<Producto> obtenerTodos();
+
     void eliminar(String codigo);
+
     Producto buscarPorCodigo(String codigo);
+
     //  Hallazgo 5: Se agrega el método que actualiza la interfaz
     void actualizar(Producto producto);
 }
