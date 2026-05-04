@@ -95,6 +95,13 @@ public class VentaPanel extends JPanel {
         panelCarrito.add(new JLabel("Seleccionar Producto:"));
         cmbProductos = new JComboBox<>();
         panelCarrito.add(cmbProductos);
+        cmbProductos.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
+                cargarComboProductos();
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {}
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {}
+        });
 
         panelCarrito.add(new JLabel("Cantidad:"));
         txtCantidad = new JTextField("1");
