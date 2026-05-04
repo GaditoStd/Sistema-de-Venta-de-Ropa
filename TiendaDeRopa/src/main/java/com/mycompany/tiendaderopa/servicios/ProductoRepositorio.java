@@ -7,8 +7,8 @@ package com.mycompany.tiendaderopa.servicios;
 import com.mycompany.tiendaderopa.modelos.Producto;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- *
  * @author juanj
  */
 public class ProductoRepositorio implements IProductoRepositorio {
@@ -26,7 +26,7 @@ public class ProductoRepositorio implements IProductoRepositorio {
 
     @Override
     public List<Producto> obtenerTodos() {
-        return new ArrayList<>(productos); // Retornamos una copia por seguridad
+        return new ArrayList<>(productos);
     }
 
     @Override
@@ -42,5 +42,17 @@ public class ProductoRepositorio implements IProductoRepositorio {
             }
         }
         return null;
+    }
+
+    // Hallazgo 5: Implementación real metodo actualizar
+    // Ahora ProductoServicio puede usarlo en vez de mutar la copia directamente.
+    @Override
+    public void actualizar(Producto producto) {
+        for (int i = 0; i < productos.size(); i++) {
+            if (productos.get(i).getCodigo().equals(producto.getCodigo())) {
+                productos.set(i, producto);
+                return;
+            }
+        }
     }
 }

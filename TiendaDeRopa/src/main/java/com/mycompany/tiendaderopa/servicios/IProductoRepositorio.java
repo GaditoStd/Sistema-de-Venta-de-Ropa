@@ -5,8 +5,9 @@
 package com.mycompany.tiendaderopa.servicios;
 import com.mycompany.tiendaderopa.modelos.Producto;
 import java.util.List;
+
 /**
- *
+ * Interfaz para el repositorio de productos.
  * @author juanj
  */
 public interface IProductoRepositorio {
@@ -14,4 +15,6 @@ public interface IProductoRepositorio {
     List<Producto> obtenerTodos();
     void eliminar(String codigo);
     Producto buscarPorCodigo(String codigo);
+    //  Hallazgo 5: Se agrega el método que actualiza la interfaz
+    void actualizar(Producto producto);
 }

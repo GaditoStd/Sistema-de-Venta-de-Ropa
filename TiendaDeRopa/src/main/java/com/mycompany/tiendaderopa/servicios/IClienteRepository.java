@@ -36,4 +36,6 @@ public interface IClienteRepository {
      * @return El cliente encontrado o null si no existe.
      */
     Cliente buscarPorCedula(String cedula);
+
+    void actualizar(Cliente cliente);
 }
