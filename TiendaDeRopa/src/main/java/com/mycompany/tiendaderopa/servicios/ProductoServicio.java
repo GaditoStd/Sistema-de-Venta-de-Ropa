@@ -17,32 +17,59 @@ public class ProductoServicio {
         this.productoRepositorio = productoRepositorio;
     }
 
-    //  Hallazgo 11: Valida que nombre, talla y color no estén vacíos
-    //  Hallazgo 2 (productos): Verifica duplicado de código
     public void registrarProducto(String codigo, String nombre, String talla, String color, double precio, int stock) {
-        if (codigo == null || codigo.isEmpty()) {
+
+        // --- Validar código ---
+        if (codigo == null || codigo.trim().isEmpty()) {
             throw new IllegalArgumentException("El código es obligatorio.");
         }
+        if (codigo.trim().length() < 2) {
+            throw new IllegalArgumentException("El código debe tener al menos 2 caracteres.");
+        }
+
+        // --- Validar nombre ---
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del producto es obligatorio.");
         }
+        if (nombre.trim().length() < 2) {
+            throw new IllegalArgumentException("El nombre debe tener al menos 2 caracteres.");
+        }
+
+        // --- Validar talla ---
         if (talla == null || talla.trim().isEmpty()) {
             throw new IllegalArgumentException("La talla es obligatoria.");
         }
+
+        // --- Validar color ---
         if (color == null || color.trim().isEmpty()) {
             throw new IllegalArgumentException("El color es obligatorio.");
         }
+        if (!color.trim().matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
+            throw new IllegalArgumentException("El color solo puede contener letras, sin números ni símbolos.");
+        }
+
+        // --- Validar precio ---
         if (precio <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a cero.");
         }
+        if (precio > 99_999_999) {
+            throw new IllegalArgumentException("El precio no puede superar 99,999,999.");
+        }
+
+        // --- Validar stock ---
         if (stock < 0) {
             throw new IllegalArgumentException("El stock no puede ser negativo.");
         }
-        // Verifica duplicado antes de guardar
-        if (productoRepositorio.buscarPorCodigo(codigo) != null) {
+        if (stock > 9999) {
+            throw new IllegalArgumentException("El stock no puede ser mayor a 9,999 unidades.");
+        }
+
+        // --- Validar duplicado ---
+        if (productoRepositorio.buscarPorCodigo(codigo.trim()) != null) {
             throw new IllegalArgumentException("Ya existe un producto con el código: " + codigo);
         }
-        Producto producto = new Producto(codigo, nombre, talla, color, precio, stock);
+
+        Producto producto = new Producto(codigo.trim(), nombre.trim(), talla.trim(), color.trim(), precio, stock);
         productoRepositorio.guardar(producto);
     }
 
@@ -51,22 +78,75 @@ public class ProductoServicio {
     }
 
     public void eliminarProducto(String codigo) {
-        productoRepositorio.eliminar(codigo);
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new IllegalArgumentException("Selecciona un producto para eliminar.");
+        }
+        if (productoRepositorio.buscarPorCodigo(codigo.trim()) == null) {
+            throw new IllegalArgumentException("No existe un producto con el código: " + codigo);
+        }
+        productoRepositorio.eliminar(codigo.trim());
     }
 
-    // Hallazgo 5: Ahora usa productoRepositorio.actualizar()
-    // en lugar de mutar objetos de la copia, respetando el contrato de la interfaz.
     public void actualizarProducto(String codigo, String nombre, String talla, String color, double precio, int stock) {
-        Producto producto = new Producto(codigo, nombre, talla, color, precio, stock);
+
+        // --- Validar que el producto exista ---
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new IllegalArgumentException("Selecciona un producto de la tabla para actualizar.");
+        }
+        if (productoRepositorio.buscarPorCodigo(codigo.trim()) == null) {
+            throw new IllegalArgumentException("No existe un producto con el código: " + codigo);
+        }
+
+        // --- Validar nombre ---
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del producto es obligatorio.");
+        }
+
+        // --- Validar talla ---
+        if (talla == null || talla.trim().isEmpty()) {
+            throw new IllegalArgumentException("La talla es obligatoria.");
+        }
+
+        // --- Validar color ---
+        if (color == null || color.trim().isEmpty()) {
+            throw new IllegalArgumentException("El color es obligatorio.");
+        }
+        if (!color.trim().matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
+            throw new IllegalArgumentException("El color solo puede contener letras, sin números ni símbolos.");
+        }
+
+        // --- Validar precio ---
+        if (precio <= 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor a cero.");
+        }
+        if (precio > 99_999_999) {
+            throw new IllegalArgumentException("El precio no puede superar 99,999,999.");
+        }
+
+        // --- Validar stock ---
+        if (stock < 0) {
+            throw new IllegalArgumentException("El stock no puede ser negativo.");
+        }
+        if (stock > 9999) {
+            throw new IllegalArgumentException("El stock no puede ser mayor a 9,999 unidades.");
+        }
+
+        Producto producto = new Producto(codigo.trim(), nombre.trim(), talla.trim(), color.trim(), precio, stock);
         productoRepositorio.actualizar(producto);
     }
 
     public boolean reducirStock(String codigo, int cantidadVendida) {
-        Producto p = productoRepositorio.buscarPorCodigo(codigo);
-        if (p != null && p.getStock() >= cantidadVendida) {
-            p.setStock(p.getStock() - cantidadVendida);
-            return true;
+        if (cantidadVendida <= 0) {
+            throw new IllegalArgumentException("La cantidad a vender debe ser mayor a cero.");
         }
-        return false;
+        Producto p = productoRepositorio.buscarPorCodigo(codigo);
+        if (p == null) {
+            throw new IllegalArgumentException("No existe un producto con el código: " + codigo);
+        }
+        if (p.getStock() < cantidadVendida) {
+            return false;
+        }
+        p.setStock(p.getStock() - cantidadVendida);
+        return true;
     }
 }
