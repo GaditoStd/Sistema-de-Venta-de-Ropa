@@ -2,6 +2,8 @@ package com.mycompany.tiendaderopa.servicios;
 
 import com.mycompany.tiendaderopa.modelos.Venta;
 import com.mycompany.tiendaderopa.modelos.Cliente;
+import com.mycompany.tiendaderopa.modelos.Venta;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
