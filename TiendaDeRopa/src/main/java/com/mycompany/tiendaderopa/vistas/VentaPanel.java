@@ -8,24 +8,27 @@ import com.mycompany.tiendaderopa.servicios.VentaServicio;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Panel para gestionar ventas.
- *  Hallazgo 1: Se agrega panel completo para seleccionar
- * productos, cantidades y agregarlos a la venta antes de confirmar.
- *  Hallazgo 6: El botón Actualizar ahora está deshabilitado
- * (la venta no tiene campos modificables desde la GUI, es honesto con el usuario).
- *  Hallazgo 7: Se valida cantidad > 0 al crear DetalleVenta.
- *  Hallazgo 12: Se eliminan importaciones no usadas.
+ *
+ * CORRECCIÓN CRÍTICA en guardarVenta():
+ * El flujo anterior era:
+ *   1. registrarVenta()  → guarda en BD con detalles VACÍOS
+ *   2. buscarVenta()     → recupera de BD (sigue con detalles vacíos)
+ *   3. agregarDetalle()  → modifica el objeto en RAM, NUNCA persiste en BD
+ *
+ * El flujo correcto ahora es:
+ *   1. Validar carrito
+ *   2. Llamar a ventaServicio.registrarVentaCompleta() que pasa cabecera
+ *      + detalles juntos → una sola transacción atómica en la BD
+ *   3. Reducir stock de cada producto vendido
  */
 public class VentaPanel extends JPanel {
 
-    // --- Campos del formulario principal ---
     private JTextField txtNumeroFactura;
     private JTextField txtCliente;
     private JTextField txtFecha;
@@ -33,29 +36,22 @@ public class VentaPanel extends JPanel {
     private JButton btnGuardar;
     private JButton btnEliminar;
 
-    // --- Tabla de ventas registradas ---
     private JTable tablaVentas;
     private DefaultTableModel tableModel;
 
-    // --- Tabla de detalles temporales (carrito) ---
     private JTable tablaDetalles;
     private DefaultTableModel detalleModel;
 
-    // --- Panel para agregar productos al carrito ---
     private JComboBox<String> cmbProductos;
     private JTextField txtCantidad;
     private JButton btnAgregarProducto;
     private JButton btnQuitarProducto;
 
-    // --- Lista temporal de detalles antes de guardar ---
     private List<DetalleVenta> carrito;
 
     private VentaServicio ventaServicio;
     private ProductoServicio productoServicio;
 
-    /**
-     * Constructor que recibe ambos servicios necesarios.
-     */
     public VentaPanel(VentaServicio ventaServicio, ProductoServicio productoServicio) {
         this.ventaServicio = ventaServicio;
         this.productoServicio = productoServicio;
@@ -66,7 +62,7 @@ public class VentaPanel extends JPanel {
     private void initComponents() {
         setLayout(new BorderLayout(5, 5));
 
-        // ==================== PANEL IZQUIERDO: Formulario ====================
+        // ===== PANEL IZQUIERDO: Formulario =====
         JPanel panelFormulario = new JPanel(new GridLayout(0, 1, 3, 3));
         panelFormulario.setBorder(BorderFactory.createTitledBorder("Nueva Venta"));
 
@@ -88,7 +84,7 @@ public class VentaPanel extends JPanel {
         txtTotal.setEditable(false);
         panelFormulario.add(txtTotal);
 
-        // ==================== PANEL CARRITO: Agregar productos ====================
+        // ===== PANEL CARRITO =====
         JPanel panelCarrito = new JPanel(new GridLayout(0, 1, 3, 3));
         panelCarrito.setBorder(BorderFactory.createTitledBorder("Agregar Producto a la Venta"));
 
@@ -114,41 +110,33 @@ public class VentaPanel extends JPanel {
         panelBotonesCarrito.add(btnQuitarProducto);
         panelCarrito.add(panelBotonesCarrito);
 
-        // ==================== BOTONES PRINCIPALES ====================
+        // ===== BOTONES PRINCIPALES =====
         JPanel panelBotones = new JPanel(new GridLayout(1, 2, 5, 5));
         btnGuardar = new JButton("✔ Confirmar Venta");
         btnEliminar = new JButton("✖ Eliminar Venta");
         panelBotones.add(btnGuardar);
         panelBotones.add(btnEliminar);
 
-        // Panel izquierdo completo
         JPanel panelIzquierdo = new JPanel(new BorderLayout(5, 5));
         panelIzquierdo.add(panelFormulario, BorderLayout.NORTH);
         panelIzquierdo.add(panelCarrito, BorderLayout.CENTER);
         panelIzquierdo.add(panelBotones, BorderLayout.SOUTH);
         panelIzquierdo.setPreferredSize(new Dimension(280, 0));
-
         add(panelIzquierdo, BorderLayout.WEST);
 
-        // ==================== TABLAS DERECHAS ====================
-        // Tabla de detalles del carrito actual
+        // ===== TABLAS DERECHAS =====
         detalleModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"Producto", "Talla", "Color", "Precio", "Cantidad", "Subtotal"}
-        ) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { public boolean isCellEditable(int r, int c) { return false; } };
         tablaDetalles = new JTable(detalleModel);
         JScrollPane scrollDetalles = new JScrollPane(tablaDetalles);
         scrollDetalles.setBorder(BorderFactory.createTitledBorder("Productos en esta venta (carrito)"));
 
-        // Tabla de ventas registradas
         tableModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"N° Factura", "Cliente", "Fecha", "Total"}
-        ) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { public boolean isCellEditable(int r, int c) { return false; } };
         tablaVentas = new JTable(tableModel);
         JScrollPane scrollVentas = new JScrollPane(tablaVentas);
         scrollVentas.setBorder(BorderFactory.createTitledBorder("Ventas Registradas"));
@@ -157,7 +145,7 @@ public class VentaPanel extends JPanel {
         splitPane.setDividerLocation(200);
         add(splitPane, BorderLayout.CENTER);
 
-        // ==================== LISTENERS ====================
+        // ===== LISTENERS =====
         btnAgregarProducto.addActionListener(e -> agregarProductoAlCarrito());
         btnQuitarProducto.addActionListener(e -> quitarProductoDelCarrito());
         btnGuardar.addActionListener(e -> guardarVenta());
@@ -167,15 +155,10 @@ public class VentaPanel extends JPanel {
             if (!e.getValueIsAdjusting()) cargarVentaSeleccionada();
         });
 
-        // Cargar datos iniciales
         cargarComboProductos();
         cargarVentas();
     }
 
-    /**
-     *  Hallazgo 1: Carga la lista de productos en el JComboBox
-     * para que el usuario pueda seleccionarlos visualmente.
-     */
     private void cargarComboProductos() {
         cmbProductos.removeAllItems();
         List<Producto> productos = productoServicio.listarProductos();
@@ -184,16 +167,11 @@ public class VentaPanel extends JPanel {
         }
     }
 
-    /**
-     * Hallazgo 1 y 7: Agrega producto al carrito temporal
-     * con validación de cantidad > 0.
-     */
     private void agregarProductoAlCarrito() {
         if (cmbProductos.getSelectedIndex() < 0) {
             JOptionPane.showMessageDialog(this, "Selecciona un producto.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         int cantidad;
         try {
             cantidad = Integer.parseInt(txtCantidad.getText().trim());
@@ -201,8 +179,6 @@ public class VentaPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        //  Hallazgo 7: Valida cantidad > 0
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -252,8 +228,14 @@ public class VentaPanel extends JPanel {
     }
 
     /**
-     * Hallazgo 1: Ahora sí agrega los DetalleVenta de la lista
-     * temporal a la venta antes de guardarla.
+     * CORRECCIÓN: Ahora usa registrarVentaCompleta() en lugar de
+     * registrarVenta() + agregarDetalle() en memoria.
+     *
+     * Flujo correcto:
+     * 1. Pasar carrito completo al servicio
+     * 2. El servicio construye el objeto Venta con detalles
+     * 3. VentaRepositorio.guardar() inserta cabecera + detalles en UNA transacción
+     * 4. Solo después de confirmar en BD se reduce el stock
      */
     private void guardarVenta() {
         try {
@@ -265,20 +247,19 @@ public class VentaPanel extends JPanel {
                 return;
             }
 
-            ventaServicio.registrarVenta(numeroFactura, cedulaCliente);
-            Venta venta = ventaServicio.buscarVenta(numeroFactura);
-            if (venta != null) {
-                for (DetalleVenta detalle : carrito) {
-                    venta.agregarDetalle(detalle);
-                    // Reducir stock del producto vendido
-                    productoServicio.reducirStock(detalle.getProducto().getCodigo(), detalle.getCantidad());
-                }
+            // Una sola llamada — guarda cabecera + detalles en una transacción
+            ventaServicio.registrarVentaCompleta(numeroFactura, cedulaCliente, carrito);
+
+            // Ahora que la venta está confirmada en BD, reducir stock
+            for (DetalleVenta detalle : carrito) {
+                productoServicio.reducirStock(detalle.getProducto().getCodigo(), detalle.getCantidad());
             }
 
             JOptionPane.showMessageDialog(this, "Venta guardada exitosamente.");
             limpiarFormulario();
             cargarVentas();
-            cargarComboProductos(); // Actualiza stock en el combo
+            cargarComboProductos();
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -307,7 +288,6 @@ public class VentaPanel extends JPanel {
                 txtCliente.setText(venta.getCliente().getCedula());
                 txtFecha.setText(venta.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 txtTotal.setText(String.format("$%.2f", venta.getTotal()));
-                // Mostrar detalles de la venta seleccionada
                 detalleModel.setRowCount(0);
                 for (DetalleVenta d : venta.getDetalles()) {
                     detalleModel.addRow(new Object[]{
