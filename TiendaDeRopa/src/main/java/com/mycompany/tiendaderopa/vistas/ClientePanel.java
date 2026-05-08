@@ -12,15 +12,23 @@ public class ClientePanel extends javax.swing.JPanel {
     private final ClienteService clienteService;
 
     private void actualizarTabla() {
-        DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
-        modelo.setRowCount(0);
-        List<Cliente> lista = clienteService.listarClientes();
-        for (Cliente c : lista) {
-            modelo.addRow(new Object[]{
-                    c.getCedula(),
-                    c.getNombre(),
-                    c.getTelefono()
-            });
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
+            modelo.setRowCount(0);
+            List<Cliente> lista = clienteService.listarClientes();
+            for (Cliente c : lista) {
+                modelo.addRow(new Object[]{
+                        c.getCedula(),
+                        c.getNombre(),
+                        c.getTelefono()
+                });
+            }
+        } catch (RuntimeException e) {
+            // Error al conectar con BD
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Error al cargar clientes: " + e.getMessage(), 
+                    "Error de conexión", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -154,10 +162,14 @@ public class ClientePanel extends javax.swing.JPanel {
             return;
         }
 
-        String cedula = tblClientes.getValueAt(fila, 0).toString();
-        clienteService.eliminarCliente(cedula);
-        actualizarTabla();
-        javax.swing.JOptionPane.showMessageDialog(this, "Cliente eliminado.");
+        try {
+            String cedula = tblClientes.getValueAt(fila, 0).toString();
+            clienteService.eliminarCliente(cedula);
+            actualizarTabla();
+            javax.swing.JOptionPane.showMessageDialog(this, "Cliente eliminado.");
+        } catch (RuntimeException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event-btnEliminarActionPerformed
 
     private void tblClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event-tblClientesMouseClicked
