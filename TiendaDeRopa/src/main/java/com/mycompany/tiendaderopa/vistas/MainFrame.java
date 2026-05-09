@@ -34,7 +34,7 @@ public class MainFrame extends javax.swing.JFrame {
         tabPrincipal.setComponentAt(1, new ProductoPanel(productoService));
 
         //  Hallazgo 1: VentaPanel ahora recibe también ProductoServicio
-        tabPrincipal.setComponentAt(2, new VentaPanel(ventaService, productoService));
+        tabPrincipal.setComponentAt(2, new VentaPanel(ventaService, productoService, clienteService));
 
         // Historial
         historialPanel = new HistorialPanel(ventaService);

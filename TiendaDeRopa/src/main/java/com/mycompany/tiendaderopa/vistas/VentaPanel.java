@@ -5,6 +5,8 @@ import com.mycompany.tiendaderopa.modelos.Producto;
 import com.mycompany.tiendaderopa.modelos.Venta;
 import com.mycompany.tiendaderopa.servicios.ProductoServicio;
 import com.mycompany.tiendaderopa.servicios.VentaServicio;
+import com.mycompany.tiendaderopa.modelos.Cliente;
+import com.mycompany.tiendaderopa.servicios.ClienteService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -30,7 +32,8 @@ import java.util.List;
 public class VentaPanel extends JPanel {
 
     private JTextField txtNumeroFactura;
-    private JTextField txtCliente;
+    private JComboBox<String> cmbClientes;
+    private ClienteService clienteService;
     private JTextField txtFecha;
     private JTextField txtTotal;
     private JButton btnGuardar;
@@ -52,9 +55,10 @@ public class VentaPanel extends JPanel {
     private VentaServicio ventaServicio;
     private ProductoServicio productoServicio;
 
-    public VentaPanel(VentaServicio ventaServicio, ProductoServicio productoServicio) {
+    public VentaPanel(VentaServicio ventaServicio, ProductoServicio productoServicio, ClienteService clienteServicio) {
         this.ventaServicio = ventaServicio;
         this.productoServicio = productoServicio;
+        this.clienteService = clienteServicio;
         this.carrito = new ArrayList<>();
         initComponents();
     }
@@ -70,9 +74,20 @@ public class VentaPanel extends JPanel {
         txtNumeroFactura = new JTextField();
         panelFormulario.add(txtNumeroFactura);
 
-        panelFormulario.add(new JLabel("Cédula del Cliente:"));
-        txtCliente = new JTextField();
-        panelFormulario.add(txtCliente);
+        panelFormulario.add(new JLabel("Cliente:"));
+        cmbClientes = new JComboBox<>();
+        
+        cmbClientes.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
+            cargarComboClientes();
+        }
+
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {}
+
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {}
+        });
+        
+        panelFormulario.add(cmbClientes);
 
         panelFormulario.add(new JLabel("Fecha (automática):"));
         txtFecha = new JTextField();
@@ -156,6 +171,7 @@ public class VentaPanel extends JPanel {
         });
 
         cargarComboProductos();
+        cargarComboClientes();
         cargarVentas();
     }
 
@@ -165,6 +181,19 @@ public class VentaPanel extends JPanel {
         for (Producto p : productos) {
             cmbProductos.addItem(p.getCodigo() + " - " + p.getNombre() + " ($" + p.getPrecio() + ")");
         }
+    }
+    
+    private void cargarComboClientes() {
+        cmbClientes.removeAllItems();
+        List<Cliente> clientes = clienteService.listarClientes();
+        System.out.println("CLIENTES ENCONTRADOS: " + clientes.size());
+        for (Cliente c : clientes) {
+            System.out.println(c.getCedula() + " - " + c.getNombre());
+            cmbClientes.addItem(
+                    c.getCedula() + " - " + c.getNombre()
+        );
+    }
+        cmbClientes.repaint();
     }
 
     private void agregarProductoAlCarrito() {
@@ -240,7 +269,16 @@ public class VentaPanel extends JPanel {
     private void guardarVenta() {
         try {
             String numeroFactura = txtNumeroFactura.getText().trim();
-            String cedulaCliente = txtCliente.getText().trim();
+            if (cmbClientes.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Seleccione un cliente.",
+                        "Advertencia",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String clienteSeleccionado = cmbClientes.getSelectedItem().toString();
+            String cedulaCliente = clienteSeleccionado.split(" - ")[0];
 
             if (carrito.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Agrega al menos un producto antes de confirmar la venta.", "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -285,7 +323,11 @@ public class VentaPanel extends JPanel {
             Venta venta = ventaServicio.buscarVenta(numeroFactura);
             if (venta != null) {
                 txtNumeroFactura.setText(venta.getNumeroFactura());
-                txtCliente.setText(venta.getCliente().getCedula());
+                String clienteTexto = venta.getCliente().getCedula()
+                        + " - "
+                        + venta.getCliente().getNombre();
+
+                cmbClientes.setSelectedItem(clienteTexto);
                 txtFecha.setText(venta.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 txtTotal.setText(String.format("$%.2f", venta.getTotal()));
                 detalleModel.setRowCount(0);
@@ -318,7 +360,7 @@ public class VentaPanel extends JPanel {
 
     private void limpiarFormulario() {
         txtNumeroFactura.setText("");
-        txtCliente.setText("");
+        cmbClientes.setSelectedIndex(-1);
         txtFecha.setText("");
         txtTotal.setText("$0.00");
         carrito.clear();
